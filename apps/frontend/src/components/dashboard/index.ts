@@ -1,4 +1,3 @@
-
 export { default as UserProfileSidebar } from './UserProfileSidebar';
 export { default as TasksTab } from './TasksTab';
 export { default as NotificationsTab } from './NotificationsTab';

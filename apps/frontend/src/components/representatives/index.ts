@@ -1,4 +1,3 @@
-
 export { default as RepresentativesSearch } from './RepresentativesSearch';
 export { default as RepresentativesFilters } from './RepresentativesFilters';
 export { default as RepresentativeCard } from './RepresentativeCard';

@@ -5,8 +5,6 @@ import { TransformInterceptor } from '@shared/interceptor';
 import { AppModule } from './app.module';
 
 async function bootstrap(): Promise<void> {
-    console.log('test');
-
     const app = await NestFactory.create(AppModule);
     // Использование middleware, interceptors
     app.useGlobalFilters(new HttpExceptionFilter());

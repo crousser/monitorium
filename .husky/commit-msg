@@ -1,0 +1,5 @@
+COMMIT_DATE=$(date +"%d-%m-%y %H:%M")
+
+COMMIT_MSG=$(cat "$1")
+
+echo "$COMMIT_MSG d: $COMMIT_DATE" > "$1"
