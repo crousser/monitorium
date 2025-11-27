@@ -1,0 +1,32 @@
+{
+  "name": "monitorium-monorepo",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/viksiko/monitorium#readme",
+  "bugs": {
+    "url": "https://github.com/viksiko/monitorium/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/viksiko/monitorium.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "install:all": "npm install",
+    "dev:backend": "npm run start:dev --workspace mb",
+    "dev:frontend": "npm run dev --workspace mf",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "prettier": "^3.7.1"
+  }
+}
