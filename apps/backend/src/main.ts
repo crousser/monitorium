@@ -1,4 +1,4 @@
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { HttpExceptionFilter } from '@shared/filter';
 import { TransformInterceptor } from '@shared/interceptor';
@@ -8,6 +8,7 @@ async function bootstrap(): Promise<void> {
     const app = await NestFactory.create(AppModule);
     // Использование middleware, interceptors
     app.useGlobalFilters(new HttpExceptionFilter());
+
     app.useGlobalInterceptors(new TransformInterceptor());
 
     // Валидация входящих DTO
@@ -19,8 +20,14 @@ async function bootstrap(): Promise<void> {
         }),
     );
 
+    app.setGlobalPrefix('api', { exclude: ['/'] });
+
+    app.enableVersioning({
+        type: VersioningType.URI,
+    });
+
     // Запуск приложения
-    await app.listen(process.env.API_PORT as string);
+    await app.listen((process.env.API_PORT as string) || 3000);
 }
 bootstrap().catch((error) => {
     console.error('Error starting the application:', error);

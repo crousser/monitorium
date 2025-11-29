@@ -1,5 +1,5 @@
 {
-  "name": "mm",
+  "name": "mmonorepo",
   "version": "1.0.0",
   "description": "",
   "license": "ISC",
@@ -11,8 +11,8 @@
   ],
   "scripts": {
     "install:all": "npm install",
-    "dev:backend": "npm run start:dev --workspace mb",
-    "dev:frontend": "npm run dev --workspace mf",
+    "dev:back": "npm run start:dev --workspace mback",
+    "dev:front": "npm run dev --workspace mfrobt",
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "prepare": "husky"
   },

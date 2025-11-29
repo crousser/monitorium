@@ -5,7 +5,10 @@ import { LogoutDto } from './dto/logout.dto';
 import { RefreshDto } from './dto/refresh.dto';
 import { RegisterDto } from './dto/register.dto';
 
-@Controller('auth')
+@Controller({
+    path: 'auth',
+    version: '1',
+})
 export class AuthController {
     constructor(private readonly authService: AuthService) {}
 
