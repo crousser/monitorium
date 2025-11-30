@@ -26,6 +26,38 @@ export class UserService {
     }
 
     async findUserById(id: string): Promise<User | null> {
-        return await this.prisma.user.findUnique({ where: { id } });
+        try {
+            const user = await this.prisma.user.findUnique({ where: { id } });
+
+            if (!user) {
+                return null;
+            }
+
+            return user;
+        } catch (error) {
+            // Логирование фактической ошибки (Надо настроить логер)
+            console.error('Ошибка Prisma при получении пользователей:', error);
+
+            throw new InternalServerErrorException(DB_OPERATION_FAILED);
+        }
+    }
+
+    async findUserByEmail(email: string): Promise<User | null> {
+        try {
+            const user = await this.prisma.user.findUnique({
+                where: { email },
+            });
+
+            if (!user) {
+                return null;
+            }
+
+            return user;
+        } catch (error) {
+            // Логирование фактической ошибки (Надо настроить логер)
+            console.error('Ошибка Prisma при получении пользователей:', error);
+
+            throw new InternalServerErrorException(DB_OPERATION_FAILED);
+        }
     }
 }

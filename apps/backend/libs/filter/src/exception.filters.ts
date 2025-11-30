@@ -50,7 +50,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
         response.status(status).json({
             success: false,
             statusCode: status,
-            message, // если массив — отдаётся массив, если строка — строка
+            data: {
+                message,
+            },
         });
     }
 }

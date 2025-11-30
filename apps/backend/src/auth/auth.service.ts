@@ -34,11 +34,16 @@ export class AuthService {
         refreshToken: string;
     }> {
         try {
-            const existing = await this.prisma.user.findUnique({
-                where: { email: registerDto.email },
+            const existingUser = await this.prisma.user.findFirst({
+                where: {
+                    OR: [
+                        { email: registerDto.email },
+                        { phone: registerDto.phone },
+                    ],
+                },
             });
 
-            if (existing) {
+            if (existingUser) {
                 throw new ConflictException(USER_ALREADY_EXISTS);
             }
 
@@ -169,6 +174,7 @@ export class AuthService {
             throw new InternalServerErrorException(DB_OPERATION_FAILED);
         }
     }
+
     // Генерация токенов
     private async generateTokens(
         payload: JwtPayload,
@@ -224,7 +230,7 @@ export class AuthService {
         return crypto
             .createHmac(
                 'sha256',
-                this.configService.get('JWT_REFRESH_TOKEN_SALT') || '',
+                this.configService.get('JWT_REFRESH_SALT') || '',
             )
             .update(token)
             .digest('hex');

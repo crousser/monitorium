@@ -1,6 +1,11 @@
-import { Injectable, NestMiddleware } from '@nestjs/common';
+import {
+    Injectable,
+    NestMiddleware,
+    UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { ACCESS_TOKEN_INVALID } from '@src/constants/errors.constants';
 import { UserService } from '@src/user/user.service';
 import { NextFunction, Response } from 'express';
 import { ExpressRequest } from '../../../src/types/expressRequest.interface';
@@ -36,6 +41,11 @@ export class AuthMiddleware implements NestMiddleware {
             );
 
             req.user = user ? user : undefined;
+        } catch (error) {
+            // Логирование фактической ошибки (Надо настроить логер)
+            console.error('Ошибка верификации токена:', error);
+
+            throw new UnauthorizedException(ACCESS_TOKEN_INVALID);
         } finally {
             next();
         }

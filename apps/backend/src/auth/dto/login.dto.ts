@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
     IsEmail,
     IsNotEmpty,
@@ -11,6 +12,9 @@ export class LoginDto {
     @IsEmail({}, { message: 'Некорректный email' })
     @MaxLength(50, { message: 'Email должен быть не более 50 символов' })
     @IsNotEmpty({ message: 'Email не может быть пустым' })
+    @ApiProperty({
+        example: 'user1@email.ru',
+    })
     email: string;
 
     @IsString({ message: 'Пароль должно быть строкой' })
@@ -24,5 +28,6 @@ export class LoginDto {
                 'Пароль должен содержать минимум 8 символов, одну заглавную букву, одну цифру и один специальный символ',
         },
     )
+    @ApiProperty({ example: 'Abc123!' })
     password: string;
 }

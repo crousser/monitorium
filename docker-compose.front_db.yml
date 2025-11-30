@@ -10,8 +10,8 @@ services:
     ports:
       - '${POSTGRES_PORT}:${POSTGRES_PORT}'
     volumes:
-      - postgres-data:/var/lib/postgresql/data
-      - postgres-logs:/var/log/postgresql
+      - monitorium-postgres-data:/var/lib/postgresql/data
+      - monitorium-postgres-logs:/var/log/postgresql
     networks:
       - monitorium
 
@@ -33,5 +33,5 @@ networks:
     driver: bridge
 
 volumes:
-  postgres-data:
-  postgres-logs:
+  monitorium-postgres-data:
+  monitorium-postgres-logs:

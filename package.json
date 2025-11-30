@@ -11,13 +11,14 @@
   ],
   "scripts": {
     "install:all": "npm install",
-    "dev:back": "npm run start:dev --workspace mback",
-    "dev:front": "npm run dev --workspace mfrobt",
-    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:mback": "dotenv -e ./.env -- npm run start:dev --workspace=mback",
+    "dev:mfront": "dotenv -e ./.env -- npm run dev --workspace mfront",
+    "dev": "concurrently \"npm run dev:mback\" \"npm run dev:mfront\"",
     "prepare": "husky"
   },
   "devDependencies": {
     "concurrently": "^9.2.1",
+    "dotenv-cli": "^11.0.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
     "prettier": "^3.7.1"
