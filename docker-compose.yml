@@ -1,0 +1,61 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: monitorium_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - '${POSTGRES_PORT}:${POSTGRES_PORT}'
+    volumes:
+      - monitorium-postgres-data:/var/lib/postgresql/data
+      - monitorium-postgres-logs:/var/log/postgresql
+    networks:
+      - monitorium
+
+  backend:
+    container_name: monitorium_backend
+    restart: always
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile.app
+      args:
+        DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@monitorium_postgres:${POSTGRES_PORT}/${POSTGRES_DB}
+    environment:
+      API_PORT: ${API_PORT}
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@monitorium_postgres:${POSTGRES_PORT}/${POSTGRES_DB}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_ACCESS_EXPIRES: ${JWT_ACCESS_EXPIRES}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      JWT_REFRESH_EXPIRES: ${JWT_REFRESH_EXPIRES}
+      JWT_REFRESH_SALT: ${JWT_REFRESH_SALT}
+    depends_on:
+      - postgres
+    ports:
+      - '${API_PORT}:${API_PORT}'
+    command: ["sh", "-c", "npx prisma migrate deploy --schema ./prisma/schema.prisma && node dist/main"]
+    networks:
+      - monitorium
+
+  frontend:
+    container_name: monitorium_frontend
+    restart: always
+    build:
+      context: ./apps/frontend
+      dockerfile: Dockerfile.app
+    environment:
+      VITE_FRONTEND_PORT: ${VITE_FRONTEND_PORT}
+    ports:
+      - '${VITE_FRONTEND_PORT}:80'
+    networks:
+      - monitorium  
+      
+networks:
+  monitorium:
+    driver: bridge
+
+volumes:
+  monitorium-postgres-data:
+  monitorium-postgres-logs:

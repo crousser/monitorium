@@ -1,0 +1,38 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: monitorium_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@monitorium_postgres:${POSTGRES_PORT}/${POSTGRES_DB}
+    ports:
+      - '${POSTGRES_PORT}:${POSTGRES_PORT}'
+    volumes:
+      - monitorium-postgres-data:/var/lib/postgresql/data
+      - monitorium-postgres-logs:/var/log/postgresql
+    networks:
+      - monitorium
+
+  frontend:
+    container_name: monitorium_frontend
+    restart: always
+    build:
+      context: ./apps/frontend
+      dockerfile: Dockerfile.app
+    environment:
+      VITE_FRONTEND_PORT: ${VITE_FRONTEND_PORT}
+    ports:
+      - '${VITE_FRONTEND_PORT}:80'
+    networks:
+      - monitorium
+      
+networks:
+  monitorium:
+    driver: bridge
+
+volumes:
+  monitorium-postgres-data:
+  monitorium-postgres-logs:
