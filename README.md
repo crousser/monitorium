@@ -28,6 +28,12 @@
     git checkout dev
     ```
 
+1. **Создайте от ветки "dev" новую ветку для разработки и перейдите в нее**
+
+    ```bash
+    git checkout -b new-branch
+    ```    
+
 1. **Настройте переменные окружения**
     - Скопируйте в корне проекта файл `.env.example` в `.env`
     - Отредактируйте `.env` файл, заполнив необходимые значения
@@ -39,17 +45,26 @@
 
 ## Разработка
 
-### Разработка фронтенд части
+### Инструкция для фронтенд разработчика
 
 1. **Запустите бэкенд-сервер и базу данных в докере**
+
+    - *При первом запуске или после изменений в коде используйте*
 
     ```bash
     docker-compose -f docker-compose.back.yml up --build -d
     ```
+    <img width="300" height="121" alt="image" src="https://github.com/user-attachments/assets/19454f30-ffec-4ed4-9796-cf8e1ccf355d" /><br>
 
-    <img width="300" height="71" alt="image" src="https://github.com/user-attachments/assets/363188da-8848-4549-b388-712fa90cd575" />
+    - *Для последующих запусков (без изменений) используйте*
+   
+    ```bash
+    docker-compose -f docker-compose.back.yml up -d
+    ```
+    <img width="300" height="55" alt="image" src="https://github.com/user-attachments/assets/f804fe23-86fe-4ed9-8001-a136128c39a7" />
 
-2. **Запустите сервер разработки фронтенда локально из корневого каталога проекта**
+
+3. **Запустите сервер разработки фронтенда локально из корневого каталога проекта**
 
     ```bash
     npm run dev:front
@@ -57,17 +72,27 @@
 
     <img width="300" height="119" alt="image" src="https://github.com/user-attachments/assets/75a6b8dc-7ea2-4e33-99bd-5c72bf55d45e" />
 
-### Разработка бэкенд части
+### Инструкция для бэкенд разработчика
 
 1. **Запустите сервер разработки фронтенда и базу данных**
 
+    - *При первом запуске или после изменений в коде используйте*
+
     ```bash
-    docker-compose -f docker-compose.front.yml up --build -d
+    docker-compose -f docker-compose.front_db.yml up --build -d
+    ```
+    <img width="300" height="119" alt="image" src="https://github.com/user-attachments/assets/739904a3-03cd-4543-ba38-2d869a6d625b" /><br>
+
+    - *Для последующих запусков (без изменений) используйте*
+   
+    ```bash
+    docker-compose -f docker-compose.front_db.yml up -d
     ```
 
-    <img width="300" height="67" alt="image" src="https://github.com/user-attachments/assets/e265f794-f60b-4afa-89c7-5b98932e0070" />
+    <img width="300" height="51" alt="image" src="https://github.com/user-attachments/assets/28b388da-a1b4-4391-b37a-ddba5cce5148" />
 
-2. **Настройте базу данных (примените миграции)**
+
+1. **Настройте базу данных (примените миграции)**
 
     ```bash
     cd apps/backend
@@ -76,25 +101,24 @@
 
     <img width="300" height="154" alt="image" src="https://github.com/user-attachments/assets/b6ee6ecb-ba9a-43c2-b008-804220e0f6cf" />
 
-3. **Запустите бэкенд-сервер локально в режиме разработки из корневого каталога проекта**
+2. **Запустите бэкенд-сервер локально в режиме разработки из корневого каталога проекта**
     ```bash
     npm run dev:back
     ```
     <img width="300" height="55" alt="image" src="https://github.com/user-attachments/assets/4b2d8da6-a37c-4cdc-a36c-1c74e9222bc8" />
 
-## Документация API
+
+ ## Документация API
 
 После запуска бэкенд-сервера будет доступна документация API по адресу:
-
 - **Swagger UI:** /api/v1/docs
 - **OpenAPI спецификация:** /api/v1/docs-json
 
 В документации вы найдете:
-
 - Все доступные эндпоинты API
 - Описание параметров запросов и ответов
 - Возможность тестирования API прямо из браузера
-- Примеры запросов и ответов
+- Примеры запросов и ответов   
 
 ## Docker Compose файлы
 
@@ -112,7 +136,9 @@ monitorium/
 ├── docker-compose.back.yml
 ├── docker-compose.front.yml
 ├── docker-compose.yml
+├── .env
 ├── .env.example
+├── node_modules
 └── package.json
 ```
 
