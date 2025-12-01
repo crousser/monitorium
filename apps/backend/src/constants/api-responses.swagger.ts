@@ -283,3 +283,18 @@ export const UNAUTHORIZED_ACCESS_RESPONSE: ApiResponseOptions = {
         },
     },
 };
+
+export const HEALTH_CHECK_API: ApiResponseOptions = {
+    status: 200,
+    description: 'Успешное соединение',
+    schema: {
+        example: {
+            success: true,
+            statusCode: 200,
+            data: {
+                status: 'ok',
+                service: 'Monitorium Backend',
+            },
+        },
+    },
+};

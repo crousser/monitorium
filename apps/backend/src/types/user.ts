@@ -27,11 +27,4 @@ export interface User {
     updatedAt: Date;
 }
 
-// export interface UserResponse {
-//     id: string;
-//     name: string | null;
-//     email: string;
-//     role: PrismaRole;
-// }
-
 export type UserResponse = Pick<User, 'id' | 'name' | 'email' | 'role'>;

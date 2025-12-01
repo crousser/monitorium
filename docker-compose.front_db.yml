@@ -4,9 +4,10 @@ services:
     container_name: monitorium_postgres
     restart: always
     environment:
-      POSTGRES_DATABASE: ${POSTGRES_DATABASE}
+      POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@monitorium_postgres:${POSTGRES_PORT}/${POSTGRES_DB}
     ports:
       - '${POSTGRES_PORT}:${POSTGRES_PORT}'
     volumes:

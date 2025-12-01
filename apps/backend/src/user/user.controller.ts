@@ -25,6 +25,7 @@ import { UserService } from './user.service';
 export class UserController {
     constructor(private readonly userService: UserService) {}
 
+    // Получить всех пользователей или одного по email
     @Get()
     @UseGuards(AuthGuard)
     @ApiOperation({ summary: 'Получить всех пользователей или найти по email' })
@@ -52,6 +53,7 @@ export class UserController {
         return this.userService.getAllUsers();
     }
 
+    // Получить пользователя по id
     @Get(':id')
     @UseGuards(AuthGuard)
     @ApiOperation({ summary: 'Получить пользователя по Id' })

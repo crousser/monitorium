@@ -1,5 +1,5 @@
 {
-  "name": "mmonorepo",
+  "name": "monorepo",
   "version": "1.0.0",
   "description": "",
   "license": "ISC",
@@ -11,9 +11,9 @@
   ],
   "scripts": {
     "install:all": "npm install",
-    "dev:mback": "dotenv -e ./.env -- npm run start:dev --workspace=mback",
-    "dev:mfront": "dotenv -e ./.env -- npm run dev --workspace mfront",
-    "dev": "concurrently \"npm run dev:mback\" \"npm run dev:mfront\"",
+    "dev:back": "dotenv -e ./.env -- npm run start:dev --workspace=back",
+    "dev:front": "dotenv -e ./.env -- npm run dev --workspace front",
+    "dev": "concurrently \"npm run dev:back\" \"npm run dev:front\"",
     "prepare": "husky"
   },
   "devDependencies": {

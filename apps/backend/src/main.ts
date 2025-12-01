@@ -8,6 +8,12 @@ import { AppModule } from './app.module';
 async function bootstrap(): Promise<void> {
     const app = await NestFactory.create(AppModule);
 
+    // Настройк CORS
+    app.enableCors({
+        origin: process.env.ALLOWED_ORIGINS?.split(',') || [],
+        credentials: true,
+    });
+
     // Использование middleware, interceptors
     app.useGlobalFilters(new HttpExceptionFilter());
     app.useGlobalInterceptors(new TransformInterceptor());

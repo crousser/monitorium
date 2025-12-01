@@ -10,6 +10,7 @@ import {
     DialogDescription,
     DialogTrigger,
 } from '@/components/ui/dialog';
+import { TestApiButton } from '../ui/testApiButton';
 
 const Header = () => {
     // Mock ticket count - in a real app, this would come from user state
@@ -17,6 +18,7 @@ const Header = () => {
 
     return (
         <header className="bg-white shadow-sm">
+            <TestApiButton />
             <div className="honor-container py-4">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
