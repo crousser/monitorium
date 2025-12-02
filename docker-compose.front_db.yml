@@ -24,8 +24,10 @@ services:
       dockerfile: Dockerfile.app
     environment:
       VITE_FRONTEND_PORT: ${VITE_FRONTEND_PORT}
+      VITE_API_PORT: ${VITE_API_PORT}
+      VITE_BACKEND_HOST: ${VITE_BACKEND_HOST}
     ports:
-      - '${VITE_FRONTEND_PORT}:80'
+      - '${VITE_FRONTEND_PORT}:${NGINX_PORT}'
     networks:
       - monitorium
       

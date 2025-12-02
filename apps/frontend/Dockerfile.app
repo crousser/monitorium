@@ -9,7 +9,6 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-
 # Stage 2: nginx для продакшена
 FROM nginx:stable-alpine
 
@@ -17,8 +16,8 @@ FROM nginx:stable-alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Кастомный nginx конфиг (SPA + готовность к API)
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.template /etc/nginx/templates/default.conf.template
 
 EXPOSE 80
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["/bin/sh", "-c", "envsubst '$VITE_BACKEND_HOST' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"]

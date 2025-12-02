@@ -13,9 +13,11 @@
 ## Начальная настройка
 
 1. **Создайте локальную копию репозитория по указанному URL-адресу на GitHub.**
+
     ```bash
     git clone https://github.com/viksiko/monitorium.git
     ```
+
 1. **Перейдите в каталог с именем monitorium.**
 
     ```bash
@@ -92,11 +94,14 @@
     <img width="300" height="51" alt="image" src="https://github.com/user-attachments/assets/28b388da-a1b4-4391-b37a-ddba5cce5148" />
 
 
-1. **Настройте базу данных (примените миграции)**
+1. **Настройте базу данных (сгенерируете prisma client и примените миграции)**
 
     ```bash
-    cd apps/backend
-    npx prisma migrate deploy
+    npm run db:generate
+    ```
+
+    ```bash
+    npm run db:deploy
     ```
 
     <img width="300" height="154" alt="image" src="https://github.com/user-attachments/assets/b6ee6ecb-ba9a-43c2-b008-804220e0f6cf" />
@@ -123,8 +128,8 @@
 ## Docker Compose файлы
 
 - `docker-compose.back.yml` - для разработки фронтенда (запускает бэкенд-сервер и БД)
-- `docker-compose.front.yml` - для разработки бэкенда (запускает сервер разработки фронтенда и БД)
-- `docker-compose.front.yml` - для запуска всех приложений в проекте
+- `docker-compose.front_db.yml` - для разработки бэкенда (запускает сервер разработки фронтенда и БД)
+- `docker-compose.yml` - для запуска всех приложений проекта
 
 ## Структура проекта
 
@@ -132,9 +137,11 @@
 monitorium/
 ├── apps/backend
 │   ├── backend/      # Бэкенд приложение
+│       └── package.json
 │   └── frontend/     # Фронтенд приложение
+│       └── package.json
 ├── docker-compose.back.yml
-├── docker-compose.front.yml
+├── docker-compose.front_db.yml
 ├── docker-compose.yml
 ├── .env
 ├── .env.example
@@ -144,11 +151,13 @@ monitorium/
 
 ## Скрипты
 
-- `npm run install:all` - установка зависимостей для всех частей проекта
+- `npm run install:all` - полная установка всех зависимостей проекта (и фронтенда, и бэкенда).
 - `npm run dev:front` - запуск сервера разработки фронтенда в режиме разработки
 - `npm run dev:back` - запуск бэкенда-сервера в режиме разработки
-- `npm install <пакет> --workspace=front` - установка пакетов на сервер разработки фронтенда
-- `npm install <пакет> --workspace=back` - установка пакетов на бэкенд-сервер
+- `npm install <пакет> --workspace=front` - установка пакетов для сервера разработки фронтенда
+- `npm install <пакет> --workspace=back` - установка пакетов для бэкенд-сервер
+- `npm uninstall <пакет> --workspace=front` - удаление пакетов из сервера разработки фронтенда
+- `npm uninstall <пакет> --workspace=back` - удаление пакетов из бэкенд-сервера
 
 ## При возникновении проблем
 

@@ -10,9 +10,9 @@ server {
   }
 
   # API proxy (готов к backend'у)
-  # location /api/ {
-  #   proxy_pass http://backend:5000;
-  #   proxy_set_header Host $host;
-  #   proxy_set_header X-Real-IP $remote_addr;
-  # }
+  location /api/ {
+    proxy_pass ${VITE_BACKEND_HOST};
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+  }
 }

@@ -1,9 +1,7 @@
 export const TestApiButton = (): JSX.Element => {
     const handleClickTestApiButton = async () => {
         try {
-            const response = await fetch(
-                `http://localhost:${import.meta.env.VITE_API_PORT}/api/v1/health`,
-            );
+            const response = await fetch('/api/v1/health');
 
             if (!response.ok) {
                 throw new Error(`HTTP ошибка! Статус: ${response.status}`);
