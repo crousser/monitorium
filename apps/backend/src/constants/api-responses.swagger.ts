@@ -3,14 +3,14 @@ import { ApiResponseOptions } from '@nestjs/swagger';
 // auth
 export const DATABASE_ERROR_RESPONSE: ApiResponseOptions = {
     status: 500,
-    description: 'Ошибка доступа к базе данных. Сервер БД недоступен.',
+    description: 'Ошибка доступа к базе данных. Сервер БД недоступен',
     schema: {
         example: {
             success: false,
             statusCode: 500,
             data: {
                 message:
-                    'Не удалось выполнить операцию с базой данных. Повторите попытку позже.',
+                    'Не удалось выполнить операцию с базой данных. Повторите попытку позже',
             },
         },
     },
@@ -25,7 +25,12 @@ export const USER_REGISTER_SUCCESS_RESPONSE: ApiResponseOptions = {
             statusCode: 201,
             data: {
                 accessToken: 'eyJhbGciOiJIUzI1NiI...',
-                refreshToken: 'eyJhbGciOiJIUzI1NiI...',
+                userProfile: {
+                    name: 'user1',
+                    email: '1@test.test',
+                    phone: '89775465522',
+                    role: 'USER',
+                },
             },
         },
     },
@@ -84,7 +89,12 @@ export const USER_LOGIN_SUCCESS_RESPONSE: ApiResponseOptions = {
             statusCode: 201,
             data: {
                 accessToken: 'eyJhbGciOiJIUzI1NiI...',
-                refreshToken: 'eyJhbGciOiJIUzI1NiI...',
+                userProfile: {
+                    name: 'user1',
+                    email: '1@test.test',
+                    phone: '89775465522',
+                    role: 'USER',
+                },
             },
         },
     },
@@ -135,7 +145,7 @@ export const LOGOUT_SUCCESS_RESPONSE: ApiResponseOptions = {
             success: true,
             statusCode: 201,
             data: {
-                success: true,
+                message: 'Успешный выход из системы',
             },
         },
     },
@@ -150,32 +160,23 @@ export const REFRESH_SUCCESS_RESPONSE: ApiResponseOptions = {
             statusCode: 201,
             data: {
                 accessToken: 'eyJhbGciOiJIUzI1NiI...',
-                refreshToken: 'eyJhbGciOiJIUzI1NiI...',
+                userProfile: {
+                    name: 'user1',
+                    email: '1@test.test',
+                    phone: '89775465522',
+                    role: 'USER',
+                },
             },
         },
     },
 };
 
-export const REFRESH_TOKEN_EMPTY_RESPONSE: ApiResponseOptions = {
-    status: 400,
-    description: 'Oтсутствует или пустой refreshToken',
+export const REFRESH_INVALID: ApiResponseOptions = {
+    status: 401,
+    description: 'RefreshToken недействителен, просрочен или пустой',
     schema: {
         example: {
             success: false,
-            statusCode: 400,
-            data: {
-                message: ['RefreshToken токен не должен быть пустым'],
-            },
-        },
-    },
-};
-
-export const REFRESH_UNAUTHORIZED_RESPONSE: ApiResponseOptions = {
-    status: 401,
-    description: 'RefreshToken недействителен или просрочен',
-    schema: {
-        example: {
-            success: true,
             statusCode: 401,
             data: {
                 message:

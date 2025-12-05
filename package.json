@@ -11,12 +11,14 @@
   ],
   "scripts": {
     "install:all": "npm install",
-    "dev:back": "dotenv -e ./.env -- npm run start:dev --workspace=back",
-    "dev:front": "dotenv -e ./.env -- npm run dev --workspace front",
-    "dev": "concurrently \"npm run dev:back\" \"npm run dev:front\"",
+    "dev:back": "concurrently \"npm run types:watch\" \"dotenv -e ./.env -- npm run start:dev --workspace=back\"",
+    "dev:front": "concurrently \"npm run types:watch\" \"dotenv -e ./.env -- npm run dev --workspace front",
+    "dev": "concurrently \"npm run types:watch\" \"npm run dev:back\" \"npm run dev:front\"",
     "db:generate": "npx prisma generate --schema=apps/backend/prisma/schema.prisma",
     "db:deploy": "cd apps/backend && npm run prisma:deploy",
-    "prepare": "husky"
+    "prepare": "husky",
+    "types:watch": "cd packages/types && tsc -p tsconfig.json --watch",
+    "db:reset": "dotenv -e .env -- npx prisma migrate reset --schema=apps/backend/prisma/schema.prisma"
   },
   "devDependencies": {
     "concurrently": "^9.2.1",

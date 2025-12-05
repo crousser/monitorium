@@ -15,3 +15,7 @@ export const REFRESH_TOKEN_INVALID =
 
 export const ACCESS_TOKEN_INVALID =
     'AccessToken недействителен или срок его действия истек.';
+
+export const REFRESH_TOKEN_MISSING = 'Отсутсвует refreshToken';
+
+export const LOGOUT_SUCCESS_MSG = 'Успешный выход из системы';

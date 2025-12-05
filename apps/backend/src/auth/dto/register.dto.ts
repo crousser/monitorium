@@ -13,6 +13,7 @@ export class RegisterDto {
     @IsString({ message: 'Имя должно быть строкой' })
     @MinLength(2, { message: 'Имя должно быть не менее 2 символов' })
     @MaxLength(50, { message: 'Имя должно быть не более 50 символов' })
+    @IsNotEmpty({ message: 'Имя не может быть пустым' })
     @ApiProperty({ example: 'user1' })
     name: string;
 

@@ -3,6 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { HttpExceptionFilter } from '@shared/filter';
 import { TransformInterceptor } from '@shared/interceptor';
+import * as cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 
 async function bootstrap(): Promise<void> {
@@ -44,9 +45,13 @@ async function bootstrap(): Promise<void> {
 
     SwaggerModule.setup('api/v1/docs', app, document);
 
+    // 💡 Применяем middleware для парсинга куки
+    app.use(cookieParser());
+
     // Запуск приложения
     await app.listen((process.env.API_PORT as string) || 3000);
 }
+
 bootstrap().catch((error) => {
     console.error('Error starting the application:', error);
     process.exit(1);

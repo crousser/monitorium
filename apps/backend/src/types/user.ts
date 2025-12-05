@@ -10,7 +10,7 @@ export interface User {
     sberId: string | null;
     tinkoffId: string | null;
     password: string | null;
-    name: string | null;
+    name: string;
     district: string | null;
     verified: boolean;
     isRepresentative: boolean;

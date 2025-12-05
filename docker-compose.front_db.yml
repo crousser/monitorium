@@ -20,8 +20,8 @@ services:
     container_name: monitorium_frontend
     restart: always
     build:
-      context: ./apps/frontend
-      dockerfile: Dockerfile.app
+      context: .
+      dockerfile: apps/frontend/Dockerfile.app
     environment:
       VITE_FRONTEND_PORT: ${VITE_FRONTEND_PORT}
       VITE_API_PORT: ${VITE_API_PORT}
