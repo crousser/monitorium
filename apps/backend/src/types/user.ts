@@ -10,9 +10,11 @@ export interface User {
     sberId: string | null;
     tinkoffId: string | null;
     password: string | null;
-    name: string | null;
+    name: string;
     district: string | null;
-    verified: boolean;
+    isVerified: boolean;
+    verifyToken: string | null;
+    verifyExp: Date | null;
     isRepresentative: boolean;
     role: PrismaRole;
     position: string | null;
@@ -25,6 +27,8 @@ export interface User {
     balance: number;
     createdAt: Date;
     updatedAt: Date;
+    isActive: boolean;
+    deletedAt: Date | null;
 }
 
 export type UserResponse = Pick<User, 'id' | 'name' | 'email' | 'role'>;

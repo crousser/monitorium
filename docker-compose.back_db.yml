@@ -19,8 +19,8 @@ services:
     container_name: monitorium_backend
     restart: always
     build:
-      context: ./apps/backend
-      dockerfile: Dockerfile.app
+      context: .
+      dockerfile: apps/backend/Dockerfile.app
       args:
         DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@monitorium_postgres:${POSTGRES_PORT}/${POSTGRES_DB}
     environment:

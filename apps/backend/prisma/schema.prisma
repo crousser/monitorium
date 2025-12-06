@@ -13,15 +13,17 @@ datasource db {
 }
 
 model User {
-  id               String  @id @default(cuid())
-  name             String?
-  email            String  @unique
+  id               String    @id @default(cuid())
+  name             String
+  email            String    @unique
   password         String? // Nullable для пользователей через OAuth
-  phone            String? @unique
+  phone            String?   @unique
   district         String? // Округ пользователя
-  verified         Boolean @default(false)
-  isRepresentative Boolean @default(false)
-  role             Role    @default(USER)
+  isVerified       Boolean   @default(false)
+  verifyToken      String?
+  verifyExp        DateTime?
+  isRepresentative Boolean   @default(false)
+  role             Role      @default(USER)
 
   // Поля для представителей власти
   position       String? // "Депутат городской думы", "Глава района"
@@ -43,6 +45,9 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   tokens    Token[]
+
+  isActive  Boolean  @default(true)
+  deletedAt DateTime?
 
   @@map("users")
 }

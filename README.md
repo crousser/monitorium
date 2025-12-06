@@ -54,14 +54,14 @@
     - *При первом запуске или после изменений в коде используйте*
 
     ```bash
-    docker-compose -f docker-compose.back.yml up --build -d
+    docker-compose -f docker-compose.back_db.yml up --build -d
     ```
     <img width="300" height="121" alt="image" src="https://github.com/user-attachments/assets/19454f30-ffec-4ed4-9796-cf8e1ccf355d" /><br>
 
     - *Для последующих запусков (без изменений) используйте*
    
     ```bash
-    docker-compose -f docker-compose.back.yml up -d
+    docker-compose -f docker-compose.back_db.yml up -d
     ```
     <img width="300" height="55" alt="image" src="https://github.com/user-attachments/assets/f804fe23-86fe-4ed9-8001-a136128c39a7" />
 
@@ -113,6 +113,15 @@
     <img width="300" height="55" alt="image" src="https://github.com/user-attachments/assets/4b2d8da6-a37c-4cdc-a36c-1c74e9222bc8" />
 
 
+
+### Общие Типы (Shared Types)
+
+В проекте настроена библиотека общих типов, расположенная в каталоге **`packages/types`**.
+
+  * **Назначение:** Этот модуль предназначен для хранения общих интерфейсов, схем и типов данных (например, `IUser`, `IDeviceConfig`), которые используются как в **бэкенде**, так и во **фронтенде**.
+  * **Рекомендация:** Все типы, необходимые для взаимодействия между фронтендом и бэкендом (DTO, модели данных), должны быть определены и экспортированы из **`packages/types`** для обеспечения строгой согласованности данных.
+
+
  ## Документация API
 
 После запуска бэкенд-сервера будет доступна документация API по адресу:
@@ -127,7 +136,7 @@
 
 ## Docker Compose файлы
 
-- `docker-compose.back.yml` - для разработки фронтенда (запускает бэкенд-сервер и БД)
+- `docker-compose.back_db.yml` - для разработки фронтенда (запускает бэкенд-сервер и БД)
 - `docker-compose.front_db.yml` - для разработки бэкенда (запускает сервер разработки фронтенда и БД)
 - `docker-compose.yml` - для запуска всех приложений проекта
 
@@ -140,7 +149,9 @@ monitorium/
 │       └── package.json
 │   └── frontend/     # Фронтенд приложение
 │       └── package.json
-├── docker-compose.back.yml
+├── packages/types      # Библиотека общих типов для фронтенда и бэкенда
+│           └── package.json
+├── docker-compose.back_db.yml
 ├── docker-compose.front_db.yml
 ├── docker-compose.yml
 ├── .env
