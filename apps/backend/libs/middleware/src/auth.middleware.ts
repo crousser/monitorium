@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { ACCESS_TOKEN_INVALID } from '@src/constants/errors.constants';
+import { ACCESS_TOKEN_INVALID } from '@src/constants/api-messages.constants';
 import { UserService } from '@src/user/user.service';
 import { NextFunction, Response } from 'express';
 import { ExpressRequest } from '../../../src/types/expressRequest.interface';

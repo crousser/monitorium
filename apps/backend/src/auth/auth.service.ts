@@ -1,79 +1,87 @@
-import * as crypto from 'crypto';
 import { UserProfile } from '@monorepo/types';
 import {
     ConflictException,
     Injectable,
     InternalServerErrorException,
+    NotFoundException,
     UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { User } from '@prisma/client';
 import {
     DB_OPERATION_FAILED,
-    INVALID_CREDENTIALS_MSG,
+    EMAIL_VERIFICATION_FAILED,
     LOGOUT_SUCCESS_MSG,
     REFRESH_TOKEN_INVALID,
+    REGISTRATION_CONFIRMED_MESSAGE,
+    REGISTRATION_SUCCESS,
     USER_ALREADY_EXISTS,
-} from '@src/constants/errors.constants';
-import { JwtPayload } from '@src/types/auth';
-import * as bcrypt from 'bcryptjs';
+    VERIFICATION_TOKEN_NVALID,
+} from '@src/constants/api-messages.constants';
+import { UserService } from '@src/user/user.service';
 import { Request, Response } from 'express';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { CookieTokenService } from './services/cookieToken.service';
+import { MailService } from './services/mail.service';
+import { TokenSevice } from './services/token.service';
 
 @Injectable()
 export class AuthService {
     constructor(
+        private userService: UserService,
         private prisma: PrismaService,
-        private jwt: JwtService,
+        private jwtService: JwtService,
         private configService: ConfigService,
+        private tokenService: TokenSevice,
+        private cookieTokenService: CookieTokenService,
+        private mailService: MailService,
     ) {}
 
     // Регистрация
-    async register(
-        registerDto: RegisterDto,
-        response: Response,
-    ): Promise<{
-        accessToken: string;
-        userProfile: UserProfile;
+    async register(registerDto: RegisterDto): Promise<{
+        message: string;
     }> {
+        let createdUser: User | null = null; // Нужно для логики отката
+
         try {
-            const existingUser = await this.prisma.user.findFirst({
-                where: {
-                    OR: [
-                        { email: registerDto.email },
-                        { phone: registerDto.phone },
-                    ],
-                },
-            });
+            // 1. Проверка существования пользователя (Делегирование UserService)
+            const existingUser = await this.userService.findUserByEmailOrPhone(
+                registerDto.email,
+                registerDto.phone,
+            );
 
             if (existingUser) {
                 throw new ConflictException(USER_ALREADY_EXISTS);
             }
 
-            // Используем bcryptjs для хэширования паролей
-            const hashed = await bcrypt.hash(registerDto.password, 10);
+            // 2. Создание пользователя
+            createdUser = await this.userService.createUser(registerDto);
 
-            const user = await this.prisma.user.create({
-                data: { ...registerDto, password: hashed },
-            });
-
-            // Надо будет переделать. При регистрации сразу не должны создаваться токены
-            return this.generateTokens(
-                {
-                    id: user.id,
-                    email: user.email,
-                    name: user.name,
-                    phone: user.phone,
-                    role: user.role,
-                },
-                response,
+            // 3. Отправка email
+            const emailSent = await this.mailService.sendVerificationEmail(
+                createdUser.email,
+                createdUser.verifyToken,
             );
-        } catch (error) {
-            if (error instanceof ConflictException) {
-                throw error;
+
+            if (!emailSent) {
+                // Если отправка не удалась, инициируем откат через блок catch
+                throw new Error(EMAIL_VERIFICATION_FAILED);
             }
+
+            return { message: REGISTRATION_SUCCESS };
+        } catch (error) {
+            if (createdUser && error.message === EMAIL_VERIFICATION_FAILED) {
+                await this.userService.deleteUser(createdUser.id);
+
+                throw new InternalServerErrorException(
+                    EMAIL_VERIFICATION_FAILED,
+                );
+            }
+
+            if (error instanceof ConflictException) throw error;
 
             throw new InternalServerErrorException(DB_OPERATION_FAILED);
         }
@@ -88,39 +96,24 @@ export class AuthService {
         userProfile: UserProfile;
     }> {
         try {
-            const user = await this.prisma.user.findUnique({
-                where: { email: loginDto.email },
-            });
-
-            if (!user) {
-                throw new ConflictException(INVALID_CREDENTIALS_MSG);
-            }
-
-            // Проверка пароля
-            const isPasswordValid = await bcrypt.compare(
+            // 1. Делегируем всю логику поиска, проверки верификации и пароля в UserService
+            const user = await this.userService.validateUserLogin(
+                loginDto.email,
                 loginDto.password,
-                user.password as string,
             );
 
-            if (!isPasswordValid) {
-                throw new ConflictException(INVALID_CREDENTIALS_MSG);
-            }
+            // 2. Успешный вход: генерируем payload
+            const payload = {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                phone: user.phone,
+                role: user.role,
+            };
 
-            // Успешный вход
-            return this.generateTokens(
-                {
-                    id: user.id,
-                    name: user.name,
-                    email: user.email,
-                    phone: user.phone,
-                    role: user.role,
-                },
-                response,
-            );
+            return this.tokenService.generateTokens(payload, response);
         } catch (error) {
-            if (error instanceof ConflictException) {
-                throw error;
-            }
+            if (error instanceof ConflictException) throw error;
 
             throw new InternalServerErrorException(DB_OPERATION_FAILED);
         }
@@ -132,49 +125,32 @@ export class AuthService {
         response: Response,
     ): Promise<{ accessToken: string; userProfile: UserProfile }> {
         try {
-            // 1. Извлечение токена из куки
             const refreshToken = request.cookies['refreshToken'];
 
             if (!refreshToken) {
                 throw new UnauthorizedException(REFRESH_TOKEN_INVALID);
             }
 
-            const verifyJwt = this.jwt.verify(refreshToken, {
+            // 1. Проверка JWT-подписи токена (Остается в AuthService)
+            const verifyJwt = this.jwtService.verify(refreshToken, {
                 secret: this.configService.get('JWT_REFRESH_SECRET'),
             });
 
-            const hashed = this.hashToken(refreshToken);
+            // 2. Найти и удалить старый токен в БД (Делегируется TokenService)
+            await this.tokenService.consumeRefreshToken(refreshToken);
 
-            const tokenRecord = await this.prisma.token.findUnique({
-                where: { hashedToken: hashed },
-            });
+            // 3. Генерируем новую пару токенов (Делегируется TokenService)
+            const payload = {
+                id: verifyJwt.id,
+                name: verifyJwt.name,
+                email: verifyJwt.email,
+                phone: verifyJwt.phone,
+                role: verifyJwt.role,
+            };
 
-            if (!tokenRecord) {
-                throw new UnauthorizedException(REFRESH_TOKEN_INVALID);
-            }
-
-            // Удаляем старый refresh-токен если он существует
-            if (tokenRecord) {
-                await this.prisma.token.delete({
-                    where: { id: tokenRecord.id },
-                });
-            }
-
-            // Генерируем новую пару токенов
-            return await this.generateTokens(
-                {
-                    id: verifyJwt.id,
-                    name: verifyJwt.name,
-                    email: verifyJwt.email,
-                    phone: verifyJwt.phone,
-                    role: verifyJwt.role,
-                },
-                response,
-            );
+            return await this.tokenService.generateTokens(payload, response);
         } catch (error) {
-            if (error instanceof UnauthorizedException) {
-                throw error;
-            }
+            if (error instanceof UnauthorizedException) throw error;
 
             throw new InternalServerErrorException(DB_OPERATION_FAILED);
         }
@@ -193,133 +169,38 @@ export class AuthService {
             throw new UnauthorizedException(REFRESH_TOKEN_INVALID);
         }
 
-        const hashed = this.hashToken(refreshToken);
-
         try {
-            const deleteResult = await this.prisma.token.deleteMany({
-                where: { hashedToken: hashed },
-            });
+            const deletedCount =
+                await this.tokenService.deleteTokensByHash(refreshToken);
 
-            if (deleteResult.count === 0) {
+            if (deletedCount === 0) {
                 throw new UnauthorizedException(REFRESH_TOKEN_INVALID);
             }
 
-            this.clearRefreshTokenCookie(response);
+            this.cookieTokenService.clearRefreshTokenCookie(response);
 
             return { message: LOGOUT_SUCCESS_MSG };
         } catch (error) {
-            if (error instanceof UnauthorizedException) {
-                throw error;
-            }
+            if (error instanceof UnauthorizedException) throw error;
+
             throw new InternalServerErrorException(DB_OPERATION_FAILED);
         }
     }
 
-    // Генерация токенов
-    private async generateTokens(
-        payload: JwtPayload,
-        response: Response,
-    ): Promise<{
-        accessToken: string;
-        userProfile: UserProfile;
-    }> {
-        const accessToken = this.jwt.sign<JwtPayload>(payload, {
-            secret: this.configService.get('JWT_ACCESS_SECRET'),
-            expiresIn: this.configService.get('JWT_ACCESS_EXPIRES'),
-        });
-
-        const refreshToken = this.jwt.sign<JwtPayload>(payload, {
-            secret: this.configService.get('JWT_REFRESH_SECRET'),
-            expiresIn: this.configService.get('JWT_REFRESH_EXPIRES'),
-        });
-
-        const decodedToken = this.jwt.decode(refreshToken);
-
-        // Преобразует время истечения срока действия токена
-        const expiresAt = new Date(decodedToken.exp * 1000);
-
-        await this.saveRefreshToken(payload.id, refreshToken, expiresAt);
-
-        this.setRefreshTokenCookie(response, refreshToken);
-
-        return {
-            accessToken,
-            userProfile: {
-                name: payload.name,
-                email: payload.email,
-                phone: payload.phone || '',
-                role: payload.role,
-            },
-        };
-    }
-
-    // Сохранение токена в базу
-    private async saveRefreshToken(
-        userId: string,
-        refreshToken: string,
-        expiresAt: Date,
-    ): Promise<void> {
-        const hashed = this.hashToken(refreshToken);
+    // подтверждение регистрации
+    async confirmRegistration(token: string): Promise<{ message: string }> {
+        if (!token) {
+            throw new NotFoundException(VERIFICATION_TOKEN_NVALID);
+        }
 
         try {
-            await this.prisma.token.create({
-                data: {
-                    hashedToken: hashed,
-                    userId,
-                    exp: expiresAt,
-                },
-            });
+            await this.userService.verifyUserByToken(token);
         } catch (error) {
-            // Логирование фактической ошибки (Надо настроить логер)
-            console.error(
-                `Не удалось сохранить токен для пользователя ${userId}:`,
-                error,
-            );
+            if (error instanceof NotFoundException) throw error;
 
             throw new InternalServerErrorException(DB_OPERATION_FAILED);
         }
-    }
 
-    // Хеширование токена перед сохранением в базу данных (с использованием секретного ключа/соли)
-    private hashToken(token: string): string {
-        return crypto
-            .createHmac(
-                'sha256',
-                this.configService.get('JWT_REFRESH_SALT') || '',
-            )
-            .update(token)
-            .digest('hex');
-    }
-
-    // Устанавливает Refresh Token в HTTP-ответ в виде безопасной HttpOnly куки.
-    private setRefreshTokenCookie(
-        response: Response,
-        refreshToken: string,
-    ): void {
-        const isProduction =
-            this.configService.get('ENVIRONMENT') === 'production';
-        const refreshExpiresString =
-            this.configService.get<string>('JWT_REFRESH_EXPIRES') || '0';
-        const refreshExpiresMs = parseInt(refreshExpiresString, 10);
-
-        response.cookie('refreshToken', refreshToken, {
-            httpOnly: true, // Защита от XSS-атак
-            secure: isProduction, // Только по HTTPS в продакшене
-            sameSite: 'strict', // Защита от CSRF-атак
-            expires: new Date(Date.now() + refreshExpiresMs),
-            path: '/api/v1/auth/refresh', // Должен совпадать с путем установки
-        });
-    }
-
-    private clearRefreshTokenCookie(response: Response): void {
-        const isProduction =
-            this.configService.get('ENVIRONMENT') === 'production';
-
-        response.clearCookie('refreshToken', {
-            httpOnly: true,
-            secure: isProduction,
-            sameSite: 'strict',
-            path: '/api/v1/auth/refresh',
-        });
+        return { message: REGISTRATION_CONFIRMED_MESSAGE };
     }
 }
