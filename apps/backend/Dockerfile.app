@@ -15,9 +15,11 @@ COPY apps/backend ./apps/backend
 # Устанавливаем ВСЕ зависимости монорепо (включая @monorepo/types)
 RUN npm install --ignore-scripts
 
-# Генерация Prisma Client
-ARG DATABASE_URL
-RUN DATABASE_URL=$DATABASE_URL npx prisma generate --schema=apps/backend/prisma/schema.prisma
+# Prisma generate — БЕЗ DATABASE_URL
+RUN npx prisma generate --schema=apps/backend/prisma/schema.prisma
+
+# Сборка пакета с типами
+RUN npm run build --workspace=@monorepo/types
 
 # Сборка Backend
 RUN npm run build --workspace=back

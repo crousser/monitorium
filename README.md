@@ -56,23 +56,18 @@
     ```bash
     docker-compose -f docker-compose.back_db.yml up --build -d
     ```
-    <img width="300" height="121" alt="image" src="https://github.com/user-attachments/assets/19454f30-ffec-4ed4-9796-cf8e1ccf355d" /><br>
 
     - *Для последующих запусков (без изменений) используйте*
    
     ```bash
     docker-compose -f docker-compose.back_db.yml up -d
     ```
-    <img width="300" height="55" alt="image" src="https://github.com/user-attachments/assets/f804fe23-86fe-4ed9-8001-a136128c39a7" />
-
 
 3. **Запустите сервер разработки фронтенда локально из корневого каталога проекта**
 
     ```bash
     npm run dev:front
     ```
-
-    <img width="300" height="119" alt="image" src="https://github.com/user-attachments/assets/75a6b8dc-7ea2-4e33-99bd-5c72bf55d45e" />
 
 ### Инструкция для бэкенд разработчика
 
@@ -83,16 +78,12 @@
     ```bash
     docker-compose -f docker-compose.front_db.yml up --build -d
     ```
-    <img width="300" height="119" alt="image" src="https://github.com/user-attachments/assets/739904a3-03cd-4543-ba38-2d869a6d625b" /><br>
 
     - *Для последующих запусков (без изменений) используйте*
    
     ```bash
     docker-compose -f docker-compose.front_db.yml up -d
     ```
-
-    <img width="300" height="51" alt="image" src="https://github.com/user-attachments/assets/28b388da-a1b4-4391-b37a-ddba5cce5148" />
-
 
 1. **Настройте базу данных (сгенерируете prisma client и примените миграции)**
 
@@ -104,17 +95,12 @@
     npm run db:deploy
     ```
 
-    <img width="300" height="154" alt="image" src="https://github.com/user-attachments/assets/b6ee6ecb-ba9a-43c2-b008-804220e0f6cf" />
-
 2. **Запустите бэкенд-сервер локально в режиме разработки из корневого каталога проекта**
     ```bash
     npm run dev:back
     ```
-    <img width="300" height="55" alt="image" src="https://github.com/user-attachments/assets/4b2d8da6-a37c-4cdc-a36c-1c74e9222bc8" />
 
-
-
-### Общие Типы (Shared Types)
+## Общие Типы (Shared Types)
 
 В проекте настроена библиотека общих типов, расположенная в каталоге **`packages/types`**.
 
@@ -149,7 +135,7 @@ monitorium/
 │       └── package.json
 │   └── frontend/     # Фронтенд приложение
 │       └── package.json
-├── packages/types      # Библиотека общих типов для фронтенда и бэкенда
+├── packages/types    # Библиотека общих типов для фронтенда и бэкенда
 │           └── package.json
 ├── docker-compose.back_db.yml
 ├── docker-compose.front_db.yml

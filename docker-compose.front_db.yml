@@ -3,11 +3,8 @@ services:
     image: postgres:16
     container_name: monitorium_postgres
     restart: always
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@monitorium_postgres:${POSTGRES_PORT}/${POSTGRES_DB}
+    env_file:
+      - .env
     ports:
       - '${POSTGRES_PORT}:${POSTGRES_PORT}'
     volumes:
@@ -22,10 +19,8 @@ services:
     build:
       context: .
       dockerfile: apps/frontend/Dockerfile.app
-    environment:
-      VITE_FRONTEND_PORT: ${VITE_FRONTEND_PORT}
-      VITE_API_PORT: ${VITE_API_PORT}
-      VITE_BACKEND_HOST: ${VITE_BACKEND_HOST}
+    env_file:
+      - .env
     ports:
       - '${VITE_FRONTEND_PORT}:${NGINX_PORT}'
     networks:

@@ -3,10 +3,8 @@ services:
     image: postgres:16
     container_name: monitorium_postgres
     restart: always
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    env_file:
+      - .env
     ports:
       - '${POSTGRES_PORT}:${POSTGRES_PORT}'
     volumes:
@@ -21,17 +19,8 @@ services:
     build:
       context: .
       dockerfile: apps/backend/Dockerfile.app
-      args:
-        DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@monitorium_postgres:${POSTGRES_PORT}/${POSTGRES_DB}
-    environment:
-      API_PORT: ${API_PORT}
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@monitorium_postgres:${POSTGRES_PORT}/${POSTGRES_DB}
-      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
-      JWT_ACCESS_EXPIRES: ${JWT_ACCESS_EXPIRES}
-      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
-      JWT_REFRESH_EXPIRES: ${JWT_REFRESH_EXPIRES}
-      JWT_REFRESH_SALT: ${JWT_REFRESH_SALT}
-      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+    env_file:
+      - .env
     depends_on:
       - postgres
     ports:
