@@ -1,0 +1,77 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: postgres_db
+    restart: always
+    # Используем .env файл в корне для настройки базы данных
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-myuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mypassword}
+      POSTGRES_DB: ${POSTGRES_DB:-mydb}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  # 2. СЕРВИС МИГРАЦИИ (JOB)
+  migration:
+    build:
+      context: . 
+      dockerfile: ./prisma-migrate/Dockerfile 
+      args:
+        # Аргументы для стадии BUILDER (используются при сборке образа)
+        DATABASE_URL: postgres://${POSTGRES_USER:-myuser}:${POSTGRES_PASSWORD:-mypassword}@postgres_db:5432/${POSTGRES_DB:-mydb}
+    container_name: prisma_migrate
+    depends_on:
+      postgres:
+        condition: service_started
+    
+    # ИЗМЕНЕНИЕ: Явно задаем DATABASE_URL для RUNTIME
+    environment:
+      # DATABASE_URL: Используем собранную строку для подключения к контейнеру 'postgres_db'
+      # Это гарантирует, что Prisma получит полный URL.
+      DATABASE_URL: postgres://${POSTGRES_USER:-myuser}:${POSTGRES_PASSWORD:-mypassword}@postgres_db:5432/${POSTGRES_DB:-mydb}
+      
+      # Если вы используете отдельный .env файл для остальных переменных:
+      # POSTGRES_USER: ${POSTGRES_USER:-myuser}
+      # POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mypassword}
+      # POSTGRES_DB: ${POSTGRES_DB:-mydb}
+      
+    # УДАЛЕНО: env_file: - .env (мы больше не полагаемся на него для DATABASE_URL)
+    
+    # Команда: Запустить миграцию и завершиться
+    command: ["npx", "prisma", "migrate", "deploy"]
+    restart: "no"
+
+  # 3. СЕРВИС БЭКЭНДА (MAIN APP)
+  backend:
+    build:
+      context: ./backend # Контекст — папка с исходниками
+      args:
+        DATABASE_URL: postgres://${POSTGRES_USER:-myuser}:${POSTGRES_PASSWORD:-mypassword}@postgres_db:5432/${POSTGRES_DB:-mydb}
+    container_name: backend_app
+    restart: always
+    # Ждет, пока сервис миграции успешно завершится
+    depends_on:
+      migration:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_started
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      JWT_ACCESS_SECRET=: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET=: ${JWT_REFRESH_SECRET}
+    ports:
+      - "${API_PORT:-3000}:3000"
+    # volumes:
+    #   # Монтирование для разработки
+    #   - ./backend:/usr/src/app
+    # # Команда: Просто запустить приложение (миграция уже выполнена)
+    command: ["node", "dist/main"]
+
+volumes:
+  pg_data:

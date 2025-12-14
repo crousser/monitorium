@@ -1,0 +1,23 @@
+# docker-compose.debug.yml
+services:
+  backend:
+    profiles: ["debug"]
+    working_dir: /app # ⬅️ Правильно, соответствует Dockerfile
+    command: ["sh", "-c", "./node_modules/.bin/nest start --debug 0.0.0.0:9229 --watch"]
+    volumes:
+      # 1. Монтируем исходный код (.ts файлы) для hot-reload
+      - ./backend/src:/app/src
+      # 2. КРИТИЧНО: Монтируем файл tsconfig.json
+      - ./backend/tsconfig.json:/app/tsconfig.json
+      # 3. Монтируем другие конфигурационные файлы, если они есть
+      - ./backend/package.json:/app/package.json
+      # (Необязательно, если используется)
+      - ./backend/nest-cli.json:/app/nest-cli.json 
+      - ./backend/libs:/app/libs 
+      - /app/node_modules
+    ports:
+      - "9229:9229"
+    environment:
+      # ... (остальные переменные окружения)
+      - NODE_ENV=development
+    restart: "no"

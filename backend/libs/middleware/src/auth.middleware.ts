@@ -19,7 +19,7 @@ export class AuthMiddleware implements NestMiddleware {
     ): Promise<void> {
         if (!req.headers.authorization) {
             req.user = undefined;
-
+            console.log("Test Test")
             next();
             return;
         }

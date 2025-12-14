@@ -12,7 +12,7 @@ git clone https://github.com/viksiko/monitorium-backend.git
 
 ```env
 #app configuration
-APP_PORT=3000
+API_PORT=3000
 #database configuration
 POSTGRES_USER=YOUR_DB_USER
 POSTGRES_PASSWORD=YOUR_DB_PASSWORD
