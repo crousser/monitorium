@@ -19,6 +19,14 @@
       "outFiles": [
         "${workspaceFolder}/backend/dist/**/*.js"
       ]
-    }
+    },
+    {
+      "name": "Debug Frontend (Vite)",
+      "type": "pwa-chrome",
+      "request": "launch",
+      "url": "http://localhost:8080",
+      "webRoot": "${workspaceFolder}/frontend",
+      "sourceMaps": true
+    }    
   ]
 }

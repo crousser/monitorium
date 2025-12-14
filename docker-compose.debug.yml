@@ -21,3 +21,18 @@ services:
       # ... (остальные переменные окружения)
       - NODE_ENV=development
     restart: "no"
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.debug
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    external: false
